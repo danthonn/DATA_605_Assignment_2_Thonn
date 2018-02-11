@@ -1,0 +1,141 @@
+---
+title: "DATA_605_Assignment_2_Thonn"
+file: DThonn_Assign2_DATA_605
+name: Daniel Thonn
+output:
+  html_document: default
+  pdf_document: default
+course: DATA 605 CUNY MSDA program
+---
+
+** DATA_605_Assignment_2_Thonn **
+
+http://rpubs.com/danthonn/358691
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+** Problem Set 1 **
+
+1-1). Show that $A^T \times A \ne A \times A^T$
+
+$A = \left[\begin{array}{rrrr} a & b \\ c & d \\ \end{array} \right]$ 
+
+$A^T = \left[\begin{array}{rrrr} a & c \\ b & d \\ \end{array} \right]$ 
+
+$A^T \times A = \left[\begin{array}{rrrr} a^2 + c^2 + ab+cd \\ ba+dc + b^2+d^2 \\ \end{array} \right]$
+
+$A \times A^T = \left[\begin{array}{rrrr} ca + db + c^2+d^2 \\ ca+db + c^2+d^2 \\ \end{array} \right]$
+
+therefore:
+$A^T \times A \ne A \times A^T$
+
+ **Demonstration $A^T \times A \ne A \times A^T$ **
+
+``````{r, echo=TRUE}
+
+A <- matrix (c (1,2,3,4), nrow = 2, ncol=2 , byrow = TRUE)
+A_T <- t(A)
+
+A
+A_T
+
+#A * A^T
+A %*% A_T
+
+#A^T * A
+ A_T %*% A 
+
+ # conclusion-1a: shows the outcome of these products is two different matrices
+
+```
+
+1-2)For a special type of square matrix A, we get $A^T \times A = AA^T$ . Under what conditions could this be true?
+
+This is true if the matrix is symetrical.
+
+$A = \left[\begin{array}{rrrr} a & c \\ c & a \\ \end{array} \right]$ 
+
+$A^T = \left[\begin{array}{rrrr} a & c \\ c & a \\ \end{array} \right]$ 
+
+Therfore:
+$A^T \times A = A \times A^T = A^T$
+
+``````{r, echo=TRUE}
+
+A <- matrix (c (1,2,2,1), nrow = 2, ncol=2 , byrow = TRUE)
+A_T <- t(A)
+
+A
+A_T
+
+#A * A^T
+A %*% A_T
+
+#A^T * A
+ A_T %*% A 
+
+ # conclusion-1b: shows the outcome of these products is the same matrix
+
+```
+
+
+** Problem Set 2 **
+Matrix factorization is a very important problem. There are supercomputers built just to do matrix factorizations. Every second you are on an airplane, matrices are being factorized. Radars that track flights use a technique called Kalman filtering. At the heart of Kalman Filtering is a Matrix Factorization operation. Kalman Filters are solving linear systems of equations when they track your flight using radars. Write an R function to factorize a square matrix A into LU or LDU, whichever you prefer. Please submit your response in an R Markdown document using our class naming convention, E.g. LFulton_Assignment2_PS2.png
+
+``````{r, echo=TRUE}
+
+#Reference: LU Decomposition Steps: https://math.stackexchange.com/questions/404419/lu-decomposition-steps
+#Method: Gaussian Elimination
+#Factorize: obtain the lower and upper factors of a matrix
+Factorize <- function(x) { 
+intMatrices <- list()
+i<-0
+# Obtain upper matrix
+  # iterate through rows of matrix x
+  for ( row in 2: nrow(x)) {
+    # iterate through columns of matrix x
+    for(col in 1: (row -1 ))  {
+       i <- i + 1 
+      dnom <- x[col,col]
+      num <- x[row ,col]
+      ratio <- num / dnom 
+      
+      subx <- diag(nrow(x))
+      subx[row,col] <- -1 * ratio
+
+      x <- subx %*% x
+      
+      intMatrices[[i]] <- subx
+    }
+  }
+  # Obtain lower matrix
+  y <- diag(nrow(x))
+  for (i in 1:length(intMatrices))  {
+    y <- y %*% solve(intMatrices[[i]])
+  }
+  
+  LU <- list ( Lower = y , Upper = x )
+  LU
+  
+  }
+
+A <- matrix (c (1,2,3,4,5,6,7,8,9), nrow = 3, ncol=3 , byrow = TRUE)
+A
+
+LU <- lapply(Factorize(A),round,1)
+# LU Matrix with Low and Up factors
+LU
+
+# Test: Multiply Lower and Upper matrixes to obtain the original matrix
+LU[["Lower"]] %*% LU[["Upper"]] 
+
+
+# conclusion-2:
+
+```
+
+
+
+**END**
